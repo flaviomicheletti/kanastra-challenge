@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./back/app/uploads:/app/app/uploads
+    environment:
+      - UPLOAD_DIRECTORY=/app/app/uploads
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8000

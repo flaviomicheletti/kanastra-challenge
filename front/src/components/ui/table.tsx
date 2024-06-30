@@ -4,27 +4,31 @@ import { useFileContext, FileActionType } from './file';
 
 const URL = "http://localhost:8000";
 
-export const fetchFiles = async (dispatch: any) => {
-  dispatch({ type: FileActionType.SET_LOADING, payload: { isLoading: true } });
-  try {
-    const response = await axios.get(URL + '/files');
-    const files = response.data.files.map((file: string) => ({
-      name: file,
-      status: 'Uploaded', // Ajustar conforme a resposta do back-end
-    }));
-    dispatch({ type: FileActionType.SET_FILE_LIST, payload: { fileList: files } });
-  } catch (error) {
-    dispatch({ type: FileActionType.SET_ERRORS, payload: { errors: [error.message] } });
-  } finally {
-    dispatch({ type: FileActionType.SET_LOADING, payload: { isLoading: false } });
-  }
-};
-
 const FileTable = () => {
   const { state, dispatch } = useFileContext();
 
   useEffect(() => {
-    fetchFiles(dispatch);
+    const fetchFiles = async () => {
+      dispatch({ type: FileActionType.SET_LOADING, payload: { isLoading: true } });
+      try {
+        const response = await axios.get(URL + '/files');
+        const files = response.data.files.map((file: string) => ({
+          name: file,
+          status: 'Uploaded', // Ajustar conforme a resposta do back-end
+        }));
+        dispatch({ type: FileActionType.SET_FILE_LIST, payload: { fileList: files } });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          dispatch({ type: FileActionType.SET_ERRORS, payload: { errors: [error.message] } });
+        } else {
+          dispatch({ type: FileActionType.SET_ERRORS, payload: { errors: ['An unknown error occurred'] } });
+        }
+      } finally {
+        dispatch({ type: FileActionType.SET_LOADING, payload: { isLoading: false } });
+      }
+    };
+
+    fetchFiles();
   }, [dispatch]);
 
   return (
@@ -39,7 +43,7 @@ const FileTable = () => {
         {state.fileList.map((file, index) => (
           <tr key={index} className="border-b transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/50">
             <td className="p-4 align-middle">{file.name}</td>
-            <td className="p-4 align-middle">{file.status}</td>
+            <td className="p-4 align-middle">{(file as any).status}</td>
           </tr>
         ))}
       </tbody>
