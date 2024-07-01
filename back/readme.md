@@ -1,14 +1,14 @@
-    # Install 
-    apt install  python3-venv 
+# Back-end
 
-    # create
     python3 -m venv .venv
 
-    # activate
     . .venv/bin/activate
 
-    pip install pytest httpx
+    pip install --upgrade pip
+    pip install -r app/requirements.txt
 
-    pip install pytest-cov
+    uvicorn app.main:app --reload
+
+    pytest
 
     pytest --cov=app app/tests/
